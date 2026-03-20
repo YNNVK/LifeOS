@@ -10,7 +10,7 @@ import {
   Wheat,
   Droplets
 } from 'lucide-react';
-import { analyzeImage } from '../lib/gemini';
+import { analyzeImage, cleanJsonResponse } from '../lib/gemini';
 import { cn } from '../lib/utils';
 
 const MacroProgress = ({ label, value, target, color, icon: Icon }: any) => {
@@ -49,13 +49,14 @@ export const Nutrition = () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Data = (reader.result as string).split(',')[1];
-        const prompt = "Tu es un expert nutritionniste. Analyse cette photo de repas et retourne UNIQUEMENT un JSON valide : { \"meal_name\": \"nom du plat\", \"calories\": 520, \"macros\": { \"p\": 35, \"c\": 45, \"f\": 20 }, \"health_score\": 7, \"suggestions\": [\"Ajouter des fibres\"] }";
+        const prompt = "Analyse cette photo de repas et retourne les informations nutritionnelles.";
         const result = await analyzeImage(base64Data, file.type, prompt);
         try {
-          const parsed = JSON.parse(result || '{}');
+          const cleaned = cleanJsonResponse(result || '{}');
+          const parsed = JSON.parse(cleaned);
           setMealResult(parsed);
         } catch (e) {
-          console.error('Failed to parse nutrition result', e);
+          console.error('Failed to parse nutrition result', e, result);
         }
       };
       reader.readAsDataURL(file);

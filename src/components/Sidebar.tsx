@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
+  Calendar as CalendarIcon,
   Wallet, 
   Heart, 
   Utensils, 
@@ -10,7 +11,8 @@ import {
   Sparkles,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Dumbbell
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../lib/AuthContext';
@@ -24,7 +26,9 @@ interface SidebarProps {
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'calendar', label: 'Calendrier', icon: CalendarIcon },
   { id: 'finance', label: 'Finance', icon: Wallet },
+  { id: 'sport', label: 'Sport', icon: Dumbbell },
   { id: 'health', label: 'Santé', icon: Heart },
   { id: 'nutrition', label: 'Nutrition', icon: Utensils },
   { id: 'productivity', label: 'Productivité', icon: CheckSquare },

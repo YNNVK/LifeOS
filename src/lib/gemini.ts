@@ -4,6 +4,10 @@ const apiKey = process.env.GEMINI_API_KEY!;
 
 export const getGeminiPro = () => new GoogleGenAI({ apiKey });
 
+export const cleanJsonResponse = (text: string) => {
+  return text.replace(/```json\n?|```/g, "").trim();
+};
+
 export const analyzeImage = async (base64Data: string, mimeType: string, prompt: string) => {
   const ai = getGeminiPro();
   const response = await ai.models.generateContent({
@@ -13,6 +17,31 @@ export const analyzeImage = async (base64Data: string, mimeType: string, prompt:
         { inlineData: { data: base64Data, mimeType } },
         { text: prompt }
       ]
+    },
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          meal_name: { type: Type.STRING },
+          calories: { type: Type.NUMBER },
+          macros: {
+            type: Type.OBJECT,
+            properties: {
+              p: { type: Type.NUMBER },
+              c: { type: Type.NUMBER },
+              f: { type: Type.NUMBER }
+            },
+            required: ["p", "c", "f"]
+          },
+          health_score: { type: Type.NUMBER },
+          suggestions: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING }
+          }
+        },
+        required: ["meal_name", "calories", "macros", "health_score", "suggestions"]
+      }
     }
   });
   return response.text;

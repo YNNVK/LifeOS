@@ -12,7 +12,9 @@ import {
   Productivity, 
   Learning, 
   Documents, 
-  Insights 
+  Insights,
+  Calendar,
+  Sport
 } from './components/Modules';
 
 const AppContent = () => {
@@ -36,7 +38,9 @@ const AppContent = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
+      case 'calendar': return <Calendar />;
       case 'finance': return <Finance />;
+      case 'sport': return <Sport />;
       case 'health': return <Health />;
       case 'nutrition': return <Nutrition />;
       case 'productivity': return <Productivity />;

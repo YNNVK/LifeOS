@@ -6,3 +6,5 @@ export { Productivity } from './Productivity';
 export { Learning } from './Learning';
 export { Documents } from './Documents';
 export { Insights } from './Insights';
+export { Calendar } from './Calendar';
+export { Sport } from './Sport';
