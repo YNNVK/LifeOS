@@ -1,0 +1,151 @@
+{
+  "entities": {
+    "Profile": {
+      "title": "Profile",
+      "description": "User profile information and preferences",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "User UID" },
+        "email": { "type": "string", "format": "email" },
+        "fullName": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "onboardingCompleted": { "type": "boolean" },
+        "plan": { "type": "string", "enum": ["free", "premium"] },
+        "preferences": { "type": "object" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "merchant": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date" },
+        "category": { "type": "string" },
+        "type": { "type": "string", "enum": ["expense", "income"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "merchant", "amount", "date", "type"]
+    },
+    "HealthMetric": {
+      "title": "HealthMetric",
+      "description": "Daily health metric record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["steps", "sleep_min", "heart_rate", "weight", "vrc"] },
+        "value": { "type": "number" },
+        "recordedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "value", "recordedAt"]
+    },
+    "NutritionLog": {
+      "title": "NutritionLog",
+      "description": "Daily nutrition log with AI analysis",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "mealName": { "type": "string" },
+        "calories": { "type": "number" },
+        "macros": { "type": "object" },
+        "loggedAt": { "type": "string", "format": "date-time" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["userId", "mealName", "calories", "loggedAt"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "User habit to track",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "icon": { "type": "string" },
+        "streak": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title"]
+    },
+    "HabitLog": {
+      "title": "HabitLog",
+      "description": "Record of habit completion",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "habitId": { "type": "string" },
+        "userId": { "type": "string" },
+        "completedAt": { "type": "string", "format": "date" }
+      },
+      "required": ["habitId", "userId", "completedAt"]
+    },
+    "Document": {
+      "title": "Document",
+      "description": "Stored document with AI analysis",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "content": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "category"]
+    },
+    "Flashcard": {
+      "title": "Flashcard",
+      "description": "SRS flashcard for learning",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "docId": { "type": "string" },
+        "question": { "type": "string" },
+        "answer": { "type": "string" },
+        "nextReview": { "type": "string", "format": "date-time" },
+        "interval": { "type": "integer" },
+        "easeFactor": { "type": "number" },
+        "repetitionCount": { "type": "integer" }
+      },
+      "required": ["userId", "question", "answer", "nextReview"]
+    },
+    "AIInsight": {
+      "title": "AIInsight",
+      "description": "AI generated insight across domains",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["warning", "suggestion", "correlation", "achievement"] },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "impactScore": { "type": "integer" },
+        "modules": { "type": "array", "items": { "type": "string" } },
+        "isDismissed": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "content", "type"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "Profile", "description": "User profiles" },
+    "/transactions/{transactionId}": { "schema": "Transaction", "description": "Financial transactions" },
+    "/healthMetrics/{metricId}": { "schema": "HealthMetric", "description": "Health metrics" },
+    "/nutritionLogs/{logId}": { "schema": "NutritionLog", "description": "Nutrition logs" },
+    "/habits/{habitId}": { "schema": "Habit", "description": "Habits" },
+    "/habitLogs/{logId}": { "schema": "HabitLog", "description": "Habit completion logs" },
+    "/documents/{docId}": { "schema": "Document", "description": "Documents" },
+    "/flashcards/{cardId}": { "schema": "Flashcard", "description": "Flashcards" },
+    "/aiInsights/{insightId}": { "schema": "AIInsight", "description": "AI Insights" }
+  }
+}

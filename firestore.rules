@@ -1,0 +1,156 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Fields: id, email, fullName, avatarUrl, onboardingCompleted, plan, preferences, updatedAt
+    
+    // Collection: transactions
+    // Fields: id, userId, merchant, amount, date, category, type, createdAt
+    
+    // Collection: healthMetrics
+    // Fields: id, userId, type, value, recordedAt
+    
+    // Collection: nutritionLogs
+    // Fields: id, userId, mealName, calories, macros, loggedAt, imageUrl
+    
+    // Collection: habits
+    // Fields: id, userId, title, icon, streak, createdAt
+    
+    // Collection: habitLogs
+    // Fields: id, habitId, userId, completedAt
+    
+    // Collection: documents
+    // Fields: id, userId, title, category, tags, content, fileUrl, createdAt
+    
+    // Collection: flashcards
+    // Fields: id, userId, docId, question, answer, nextReview, interval, easeFactor, repetitionCount
+    
+    // Collection: aiInsights
+    // Fields: id, userId, type, title, content, impactScore, modules, isDismissed, createdAt
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function requestMatchesUid() {
+      return isAuthenticated() && request.auth.uid == request.resource.data.userId;
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    
+    function isValidProfile(data) {
+      return data.email is string && isValidEmail(data.email) &&
+             data.onboardingCompleted is bool &&
+             data.plan in ['free', 'premium'];
+    }
+
+    function isValidTransaction(data) {
+      return data.userId is string && data.merchant is string && data.merchant.size() < 100 &&
+             data.amount is number && data.type in ['expense', 'income'];
+    }
+
+    function isValidHealthMetric(data) {
+      return data.userId is string && data.type in ['steps', 'sleep_min', 'heart_rate', 'weight', 'vrc'] &&
+             data.value is number;
+    }
+
+    function isValidHabit(data) {
+      return data.userId is string && data.title is string && data.title.size() < 100;
+    }
+
+    function isValidDocument(data) {
+      return data.userId is string && data.title is string && data.title.size() < 200 &&
+             data.category is string && data.tags is list;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidProfile(request.resource.data);
+      allow update: if isOwner(userId) && isValidProfile(request.resource.data);
+    }
+
+    match /transactions/{id} {
+      allow read: if isDocOwner();
+      allow create: if requestMatchesUid() && isValidTransaction(request.resource.data);
+      allow update: if isDocOwner() && requestMatchesUid() && isValidTransaction(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /healthMetrics/{id} {
+      allow read: if isDocOwner();
+      allow create: if requestMatchesUid() && isValidHealthMetric(request.resource.data);
+      allow update: if isDocOwner() && requestMatchesUid() && isValidHealthMetric(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /nutritionLogs/{id} {
+      allow read: if isDocOwner();
+      allow create: if requestMatchesUid();
+      allow update: if isDocOwner() && requestMatchesUid();
+      allow delete: if isDocOwner();
+    }
+
+    match /habits/{id} {
+      allow read: if isDocOwner();
+      allow create: if requestMatchesUid() && isValidHabit(request.resource.data);
+      allow update: if isDocOwner() && requestMatchesUid() && isValidHabit(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /habitLogs/{id} {
+      allow read: if isDocOwner();
+      allow create: if requestMatchesUid();
+      allow update: if isDocOwner() && requestMatchesUid();
+      allow delete: if isDocOwner();
+    }
+
+    match /documents/{id} {
+      allow read: if isDocOwner();
+      allow create: if requestMatchesUid() && isValidDocument(request.resource.data);
+      allow update: if isDocOwner() && requestMatchesUid() && isValidDocument(request.resource.data);
+      allow delete: if isDocOwner();
+    }
+
+    match /flashcards/{id} {
+      allow read: if isDocOwner();
+      allow create: if requestMatchesUid();
+      allow update: if isDocOwner() && requestMatchesUid();
+      allow delete: if isDocOwner();
+    }
+
+    match /aiInsights/{id} {
+      allow read: if isDocOwner();
+      allow create: if false; // Only server/admin should create insights usually, but for this app we might allow it if we simulate it
+      allow update: if isDocOwner() && requestMatchesUid();
+      allow delete: if isDocOwner();
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "LifeOS",
+  "description": "An AI-powered daily life operating system for finances, health, nutrition, productivity, and learning.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
