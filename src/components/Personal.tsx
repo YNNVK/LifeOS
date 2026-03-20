@@ -89,6 +89,7 @@ export const Personal = () => {
   const [activePageId, setActivePageId] = useState<string>(pages[0]?.id || '');
   const [isAddingPage, setIsAddingPage] = useState(false);
   const [newPageTitle, setNewPageTitle] = useState('');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const activePage = pages.find(p => p.id === activePageId);
 
@@ -164,49 +165,76 @@ export const Personal = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex gap-8 animate-in fade-in duration-500">
+    <div className="h-[calc(100vh-8rem)] flex gap-4 md:gap-8 animate-in fade-in duration-500">
       {/* Sidebar Pages */}
-      <div className="w-64 flex flex-col gap-6">
+      <div className={cn(
+        "flex flex-col gap-6 transition-all duration-300 border-r border-white/5 pr-4",
+        isSidebarCollapsed ? "w-16" : "w-64"
+      )}>
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <Layout size={20} className="text-purple-400" />
-            Espace Perso
-          </h3>
-          <button 
-            onClick={() => setIsAddingPage(true)}
-            className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-purple-400"
-          >
-            <Plus size={20} />
-          </button>
+          {!isSidebarCollapsed && (
+            <h3 className="text-xl font-bold flex items-center gap-2 truncate">
+              <Layout size={20} className="text-purple-400" />
+              Espace Perso
+            </h3>
+          )}
+          <div className="flex items-center gap-1">
+            {!isSidebarCollapsed && (
+              <button 
+                onClick={() => setIsAddingPage(true)}
+                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-purple-400"
+              >
+                <Plus size={20} />
+              </button>
+            )}
+            <button 
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-white/30 hover:text-white"
+            >
+              {isSidebarCollapsed ? <ChevronRight size={20} /> : <X size={20} className="rotate-45" />}
+            </button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto space-y-1 custom-scrollbar">
           {pages.map(page => (
             <div 
               key={page.id}
               className={cn(
                 "group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all",
-                activePageId === page.id ? "bg-white/10 text-white" : "text-white/50 hover:bg-white/5 hover:text-white"
+                activePageId === page.id ? "bg-white/10 text-white" : "text-white/50 hover:bg-white/5 hover:text-white",
+                isSidebarCollapsed && "justify-center px-0"
               )}
               onClick={() => setActivePageId(page.id)}
+              title={isSidebarCollapsed ? page.title : undefined}
             >
               <div className="flex items-center gap-3 overflow-hidden">
                 <span className="text-lg">{page.icon}</span>
-                <span className="font-medium truncate">{page.title}</span>
+                {!isSidebarCollapsed && <span className="font-medium truncate">{page.title}</span>}
               </div>
-              <button 
-                onClick={(e) => { e.stopPropagation(); deletePage(page.id); }}
-                className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-all"
-              >
-                <Trash2 size={14} />
-              </button>
+              {!isSidebarCollapsed && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); deletePage(page.id); }}
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-all"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
             </div>
           ))}
+          {isSidebarCollapsed && (
+            <button 
+              onClick={() => setIsAddingPage(true)}
+              className="w-full flex justify-center p-3 text-purple-400 hover:bg-white/5 rounded-xl transition-all"
+            >
+              <Plus size={20} />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Main Content (Kanban) */}
-      <div className="flex-1 flex flex-col gap-8 overflow-hidden">
+      <div className="flex-1 flex flex-col gap-6 md:gap-8 overflow-hidden">
         {activePage ? (
           <>
             <div className="flex items-center justify-between">
@@ -229,9 +257,9 @@ export const Personal = () => {
               </div>
             </div>
 
-            <div className="flex-1 flex gap-6 overflow-x-auto pb-4 custom-scrollbar">
+            <div className="flex-1 flex gap-4 md:gap-6 overflow-x-auto pb-4 custom-scrollbar snap-x">
               {activePage.columns.map(column => (
-                <div key={column.id} className="w-80 flex-shrink-0 flex flex-col gap-4">
+                <div key={column.id} className="w-[85vw] md:w-80 flex-shrink-0 flex flex-col gap-4 snap-center">
                   <div className="flex items-center justify-between px-2">
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-sm uppercase tracking-wider text-white/40">{column.title}</h4>
