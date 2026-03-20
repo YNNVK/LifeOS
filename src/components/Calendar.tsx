@@ -23,6 +23,7 @@ import {
   isSameMonth, 
   isSameDay, 
   addDays, 
+  subDays,
   eachDayOfInterval,
   isToday
 } from 'date-fns';
@@ -71,6 +72,19 @@ export const Calendar = () => {
       { id: '5', title: 'Apprendre React', date: new Date(2026, 2, 7), type: 'learning' },
       { id: '6', title: 'Projet LifeOS', date: new Date(2026, 2, 10), type: 'productivity', status: 'pending' },
     ];
+
+    // Add mock habits for the last 15 days
+    for (let i = 0; i < 15; i++) {
+      const date = subDays(new Date(), i);
+      const completion = 60 + Math.floor(Math.random() * 40);
+      mockEvents.push({
+        id: `habit-${i}`,
+        title: `Habitudes: ${completion}%`,
+        date: date,
+        type: 'productivity',
+        status: 'completed'
+      });
+    }
 
     setEvents(mockEvents);
 

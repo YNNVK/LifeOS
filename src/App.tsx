@@ -14,7 +14,8 @@ import {
   Documents, 
   Insights,
   Calendar,
-  Sport
+  Sport,
+  Personal
 } from './components/Modules';
 
 const AppContent = () => {
@@ -46,6 +47,7 @@ const AppContent = () => {
       case 'productivity': return <Productivity />;
       case 'learning': return <Learning />;
       case 'documents': return <Documents />;
+      case 'perso': return <Personal />;
       case 'insights': return <Insights />;
       default: return <Dashboard />;
     }

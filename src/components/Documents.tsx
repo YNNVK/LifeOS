@@ -118,7 +118,7 @@ export const Documents = () => {
               <h3 className="font-bold text-lg mb-2 group-hover:text-purple-400 transition-colors">{doc.title}</h3>
               <p className="text-xs text-white/40 mb-4">{doc.date}</p>
               <div className="flex flex-wrap gap-2 mb-6">
-                {doc.tags.map((tag, i) => (
+                {doc.tags?.map((tag, i) => (
                   <span key={i} className="flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded-md text-white/60">
                     <Tag size={10} />
                     {tag}

@@ -68,6 +68,15 @@ export const fastChat = async (message: string) => {
   return response.text;
 };
 
+export const generateText = async (prompt: string) => {
+  const ai = getGeminiPro();
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: prompt
+  });
+  return response.text;
+};
+
 export const searchGrounding = async (query: string) => {
   const ai = getGeminiPro();
   const response = await ai.models.generateContent({

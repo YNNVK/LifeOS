@@ -7,9 +7,23 @@ import {
   XCircle, 
   ChevronRight,
   Trophy,
-  Sparkles
+  Sparkles,
+  History,
+  TrendingUp,
+  ArrowLeft
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  AreaChart,
+  Area
+} from 'recharts';
 
 interface Flashcard {
   id: string;
@@ -18,22 +32,75 @@ interface Flashcard {
   nextReview: string;
 }
 
+interface FlashcardSet {
+  id: string;
+  title: string;
+  cards: Flashcard[];
+  date: string;
+  lastScore?: number;
+}
+
+const MOCK_HISTORY = [
+  { date: '10/03', score: 65 },
+  { date: '12/03', score: 72 },
+  { date: '14/03', score: 68 },
+  { date: '15/03', score: 85 },
+  { date: '18/03', score: 82 },
+  { date: '20/03', score: 92 },
+];
+
 export const Learning = () => {
   const [isReviewing, setIsReviewing] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([
-    { id: '1', question: "Qu'est-ce qu'un Server Component dans Next.js ?", answer: "Un composant rendu sur le serveur, permettant de réduire le JavaScript envoyé au client.", nextReview: '2026-03-20' },
-    { id: '2', question: "Comment fonctionne l'algorithme SM-2 ?", answer: "Il calcule l'intervalle de révision basé sur la difficulté perçue pour optimiser la mémorisation.", nextReview: '2026-03-20' },
+  const [activeSet, setActiveSet] = useState<FlashcardSet | null>(null);
+  
+  const [flashcardSets, setFlashcardSets] = useState<FlashcardSet[]>([
+    { 
+      id: 's1', 
+      title: 'Next.js 15 Deep Dive', 
+      date: '2026-03-18',
+      cards: [
+        { id: '1', question: "Qu'est-ce qu'un Server Component dans Next.js ?", answer: "Un composant rendu sur le serveur, permettant de réduire le JavaScript envoyé au client.", nextReview: '2026-03-20' },
+        { id: '2', question: "Comment fonctionne l'algorithme SM-2 ?", answer: "Il calcule l'intervalle de révision basé sur la difficulté perçue pour optimiser la mémorisation.", nextReview: '2026-03-20' },
+      ]
+    },
+    { 
+      id: 's2', 
+      title: 'Principes de Nutrition', 
+      date: '2026-03-15',
+      cards: [
+        { id: 'n1', question: "Quel est le rôle des protéines ?", answer: "La construction et la réparation des tissus musculaires.", nextReview: '2026-03-22' },
+        { id: 'n2', question: "Combien de calories par gramme de lipides ?", answer: "9 kcal par gramme.", nextReview: '2026-03-22' },
+      ]
+    },
+    { 
+      id: 's3', 
+      title: 'Vocabulaire Anglais', 
+      date: '2026-03-10',
+      cards: [
+        { id: 'v1', question: "Traduire: 'To achieve'", answer: "Atteindre / Réaliser", nextReview: '2026-03-25' },
+        { id: 'v2', question: "Traduire: 'Insight'", answer: "Aperçu / Compréhension profonde", nextReview: '2026-03-25' },
+      ]
+    },
   ]);
 
-  const handleReview = (quality: number) => {
-    // Simple mock of SRS logic
+  const startReview = (set: FlashcardSet) => {
+    setActiveSet(set);
+    setIsReviewing(true);
+    setCurrentIndex(0);
     setShowAnswer(false);
-    if (currentIndex < flashcards.length - 1) {
+  };
+
+  const handleReview = (quality: number) => {
+    if (!activeSet) return;
+    
+    setShowAnswer(false);
+    if (currentIndex < activeSet.cards.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
       setIsReviewing(false);
+      setActiveSet(null);
       setCurrentIndex(0);
     }
   };
@@ -61,16 +128,67 @@ export const Learning = () => {
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-bold">Statistiques</h3>
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <TrendingUp size={20} className="text-purple-400" />
+                  Progression
+                </h3>
                 <div className="flex items-center gap-2 text-purple-400">
                   <Trophy size={20} />
                   <span className="font-bold">Niveau 12</span>
                 </div>
               </div>
+              
+              <div className="h-64 w-full mb-8">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={MOCK_HISTORY}>
+                    <defs>
+                      <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#9333ea" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#9333ea" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="rgba(255,255,255,0.3)" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.3)" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      domain={[0, 100]}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#18181b', 
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '12px',
+                        fontSize: '12px'
+                      }}
+                      itemStyle={{ color: '#a855f7' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="score" 
+                      stroke="#9333ea" 
+                      strokeWidth={3}
+                      fillOpacity={1} 
+                      fill="url(#colorScore)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
                   <p className="text-xs text-white/50 uppercase font-bold mb-1">À réviser</p>
-                  <p className="text-3xl font-bold text-purple-400">{flashcards.length}</p>
+                  <p className="text-3xl font-bold text-purple-400">
+                    {flashcardSets.reduce((acc, set) => acc + set.cards.length, 0)}
+                  </p>
                 </div>
                 <div className="p-6 bg-white/5 rounded-2xl border border-white/10">
                   <p className="text-xs text-white/50 uppercase font-bold mb-1">Apprises</p>
@@ -84,24 +202,34 @@ export const Learning = () => {
             </div>
 
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
-              <h3 className="text-xl font-bold mb-6">Derniers documents importés</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold">Vos Flashcards</h3>
+                <button className="text-sm text-purple-400 font-bold hover:underline">Voir tout</button>
+              </div>
               <div className="space-y-4">
-                {[
-                  { title: 'Next.js 15 Deep Dive', cards: 12, date: '2026-03-18' },
-                  { title: 'Principes de Nutrition', cards: 8, date: '2026-03-15' },
-                  { title: 'Vocabulaire Anglais', cards: 25, date: '2026-03-10' },
-                ].map((doc, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer group">
+                {flashcardSets.map((set) => (
+                  <div 
+                    key={set.id} 
+                    onClick={() => startReview(set)}
+                    className="flex items-center justify-between p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer group"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400">
                         <Brain size={20} />
                       </div>
                       <div>
-                        <p className="font-bold">{doc.title}</p>
-                        <p className="text-xs text-white/40">{doc.date} • {doc.cards} flashcards</p>
+                        <p className="font-bold">{set.title}</p>
+                        <p className="text-xs text-white/40">{set.date} • {set.cards.length} flashcards</p>
                       </div>
                     </div>
-                    <ChevronRight size={20} className="text-white/20 group-hover:text-white/50 transition-colors" />
+                    <div className="flex items-center gap-4">
+                      {set.lastScore && (
+                        <span className="text-xs font-bold px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg">
+                          {set.lastScore}%
+                        </span>
+                      )}
+                      <ChevronRight size={20} className="text-white/20 group-hover:text-white/50 transition-colors" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -124,7 +252,18 @@ export const Learning = () => {
       ) : (
         <div className="max-w-2xl mx-auto space-y-8 animate-in zoom-in-95 duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-bold text-white/50">Carte {currentIndex + 1} sur {flashcards.length}</span>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setIsReviewing(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <div>
+                <h4 className="font-bold">{activeSet?.title}</h4>
+                <span className="text-xs font-bold text-white/50">Carte {currentIndex + 1} sur {activeSet?.cards.length}</span>
+              </div>
+            </div>
             <button onClick={() => setIsReviewing(false)} className="text-sm font-bold text-red-400 hover:text-red-300">Quitter</button>
           </div>
 
@@ -137,13 +276,13 @@ export const Learning = () => {
           >
             <div className={cn("transition-all duration-500", showAnswer ? "hidden" : "block")}>
               <h3 className="text-2xl font-bold leading-relaxed">
-                {flashcards[currentIndex].question}
+                {activeSet?.cards[currentIndex].question}
               </h3>
               <p className="mt-8 text-white/30 text-sm animate-pulse">Cliquez pour voir la réponse</p>
             </div>
             <div className={cn("transition-all duration-500", showAnswer ? "block" : "hidden")}>
               <p className="text-xl text-purple-400 font-medium leading-relaxed">
-                {flashcards[currentIndex].answer}
+                {activeSet?.cards[currentIndex].answer}
               </p>
             </div>
           </div>

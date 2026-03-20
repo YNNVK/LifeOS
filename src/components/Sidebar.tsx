@@ -8,6 +8,7 @@ import {
   CheckSquare, 
   Brain, 
   FileText, 
+  Layout,
   Sparkles,
   LogOut,
   ChevronLeft,
@@ -34,6 +35,7 @@ const menuItems = [
   { id: 'productivity', label: 'Productivité', icon: CheckSquare },
   { id: 'learning', label: 'Apprentissage', icon: Brain },
   { id: 'documents', label: 'Documents', icon: FileText },
+  { id: 'perso', label: 'Perso', icon: Layout },
   { id: 'insights', label: 'Insights IA', icon: Sparkles },
 ];
 
